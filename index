@@ -1,0 +1,40 @@
+<?php
+session_start();
+
+// Proverite da li sesija za ocene postoji, ako ne, kreirajte je
+if (!isset($_SESSION['ocena'])) {
+    $_SESSION['ocena'] = [];
+}
+
+// Prikaz Bootstrap forme za unos ocena
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2>Unos ocena</h2>
+        <form action="obrada.php" method="post">
+            <div class="form-group">
+                <label for="student">Student:</label>
+                <input type="text" name="student" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="predmet">Predmet:</label>
+                <input type="text" name="predmet" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="ocena">Ocena (1-10):</label>
+                <input type="number" name="ocena" class="form-control" min="1" max="10" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Dodaj ocenu</button>
+        </form>
+
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
