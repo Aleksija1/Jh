@@ -1,0 +1,36 @@
+<?php
+// Ovaj fajl služi za čuvanje ocena iz sesije u bazu podataka
+
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "StudentDB";
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_errno) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Prikupite podatke o ocenama iz sesije
+$ocene = $_SESSION['ocena'];
+
+// Prolazimo kroz sve ocene i unosimo ih u bazu
+foreach ($ocene as $data) {
+    $student = htmlspecialchars($data['student']);
+    $predmet = htmlspecialchars($data['predmet']);
+    $ocena = (int) $data['ocena'];
+
+    $conn->query("INSERT INTO ocene (student_id, predmet_id, ocena) VALUES ('$student', '$predmet', '$ocena')");
+}
+
+// Postavite sesijsku poruku i prebacite korisnika na index.php
+$_SESSION['msg'] = "Uspešno ste sačuvali ocene u bazu podataka.";
+
+// Resetovanje sesije za ocene
+$_SESSION['ocena'] = [];
+$conn->close();
+
+header('Location: index.php');
+?>
