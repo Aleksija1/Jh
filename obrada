@@ -1,0 +1,74 @@
+<?php
+session_start();
+
+// Prikupi podatke iz forme
+$student = $_POST['student'];
+$predmet = $_POST['predmet'];
+$ocena = $_POST['ocena'];
+
+// Validacija ocene
+if ($ocena < 1 || $ocena > 10) {
+    $_SESSION['error'] = "Ocena mora biti između 1 i 10.";
+    header('Location: index.php');
+    exit();
+}
+
+// Dodaj podatke u sesiju
+$_SESSION['ocena'][] = [
+    'student' => $student,
+    'predmet' => $predmet,
+    'ocena' => $ocena
+];
+
+// Izračunaj prosek za svakog studenta
+$student_prosek = [];
+foreach ($_SESSION['ocena'] as $data) {
+    $student_name = $data['student'];
+    
+    // Inicijalizacija ako student nije dodat u $student_prosek
+    if (!isset($student_prosek[$student_name])) {
+        $student_prosek[$student_name] = ['sum' => 0, 'count' => 0];
+    }
+
+    // Ažuriranje ukupnog zbira i broja ocena za svakog studenta
+    $student_prosek[$student_name]['sum'] += $data['ocena'];
+    $student_prosek[$student_name]['count'] += 1;
+}
+
+// Računanje proseka nakon petlje
+foreach ($student_prosek as $student_name => $data) {
+    $student_prosek[$student_name]['avg'] = $data['sum'] / $data['count'];
+}
+
+// Prikaz proseka pre unosa u bazu
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2>Pregled unosa</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Prosek</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($student_prosek as $student => $data): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($student); ?></td>
+                        <td><?php echo round($data['avg'], 2); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <form action="upis.php" method="post">
+            <button type="submit" class="btn btn-success">Potvrdi unos u bazu</button>
+        </form>
+    </div>
+</body>
+</html>
